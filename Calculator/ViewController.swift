@@ -16,7 +16,7 @@ class ViewController: UIViewController {
     
     @IBAction func calcButtonPressed(_ sender: UIButton) {
         
-        //What should happen when the equals sign is pressed
+        //What should happen when a non-number button is pressed
     
     }
 
