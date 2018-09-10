@@ -9,12 +9,23 @@
 import UIKit
 
 class ViewController: UIViewController {
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+    
+    @IBOutlet weak var displayLabel: UILabel!
+    
+    
+    
+    @IBAction func calcButtonPressed(_ sender: UIButton) {
+        
+        //What should happen when the equals sign is pressed
+    
     }
 
+    
+    @IBAction func numButtonPressed(_ sender: UIButton) {
+        
+        //What should happen when a number is entered into the keypad
+    
+    }
 
 }
 
