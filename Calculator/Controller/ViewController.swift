@@ -13,61 +13,62 @@ class ViewController: UIViewController {
     @IBOutlet weak var displayLabel: UILabel!
     
     private var isFinishedTypingNumber: Bool = true
+    private var calculator = CalculatorLogic()
     
-    private var displayValue: Double {
+    
+    private var displayValue : Double {
         get {
             guard let number = Double(displayLabel.text!) else {
-                fatalError("Cannot convert display label text to a Double.")
+                fatalError("Cannot convert string to Double")
             }
             return number
         }
         set {
+            let isInteger = floor(newValue) == newValue
+            if isInteger {
+                displayLabel.text = String(Int(newValue))
+            } else {
             displayLabel.text = String(newValue)
-        }
-    }
-    
-    private var calculator = CalculatorLogic()
-    
-    @IBAction func calcButtonPressed(_ sender: UIButton) {
-        
-        //What should happen when a non-number button is pressed
-        
-        isFinishedTypingNumber = true
-        
-        calculator.setNumber(displayValue)
-        
-        if let calcMethod = sender.currentTitle {
- 
-            if let result = calculator.calculate(symbol: calcMethod) {
-                displayValue = result
             }
         }
     }
-
     
+    @IBAction func calcButtonPressed(_ sender: UIButton) {
+        isFinishedTypingNumber = true
+        calculator.inputValue = displayValue
+        if sender.currentTitle! == "+/-" || sender.currentTitle! == "%" {
+            calculator.otherOps(operation: sender.currentTitle!)
+        } else {
+            calculator.calculate(operation: sender.currentTitle!)
+        }
+        displayValue = calculator.totalValue ?? 0
+        
+    }
+
     @IBAction func numButtonPressed(_ sender: UIButton) {
         
-        //What should happen when a number is entered into the keypad
-        
-        if let numValue = sender.currentTitle {
-            
+        if let numString = sender.currentTitle {
             if isFinishedTypingNumber {
-                displayLabel.text = numValue
+                displayLabel.text = numString
                 isFinishedTypingNumber = false
+                calculator.percentHasBeenUsed = false
+                calculator.operatorLastTouched = false
             } else {
-                
-                if numValue == "." {
-                    
-                    let isInt = floor(displayValue) == displayValue
-                    
-                    if !isInt {
+                if numString == "." {
+                    if displayLabel.text!.contains(".") {
                         return
                     }
                 }
-                displayLabel.text = displayLabel.text! + numValue
+                displayLabel.text = displayLabel.text! + numString
             }
         }
     }
-
+    
+    @IBAction func clearPressed(_ sender: UIButton) {
+        // resets errrerything
+        calculator.reset()
+        isFinishedTypingNumber = true
+        displayLabel.text = "0"
+    }
+    
 }
-

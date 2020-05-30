@@ -1,61 +1,95 @@
-//
-//  CalculatorLogic.swift
-//  Calculator
-//
-//  Created by Angela Yu on 18/09/2019.
-//  Copyright © 2019 London App Brewery. All rights reserved.
-//
-
 import Foundation
 
 struct CalculatorLogic {
     
-    private var number: Double?
+    var totalValue: Double?
+    private var storedValue: Double?
+    private var storedOp: String?
+    private var storedOpForReturn: String?
+    var inputValue: Double = 0
     
-    private var intermediateCalculation: (n1: Double, calcMethod: String)?
+    var operatorLastTouched: Bool = false
+    var percentHasBeenUsed: Bool = false
     
-    mutating func setNumber(_ number: Double) {
-        self.number = number
+    mutating func reset() {
+        totalValue = nil
+        storedValue = nil
+        storedOp = nil
+        inputValue = 0
+        operatorLastTouched = false
+        percentHasBeenUsed = false
     }
     
-    mutating func calculate(symbol: String) -> Double? {
-       
-        if let n = number {
-            switch symbol {
-            case "+/-":
-                return n * -1
-            case "AC":
-                return 0
-            case "%":
-                return n * 0.01
-            case "=":
-                return performTwoNumCalculation(n2: n)
-            default:
-                intermediateCalculation = (n1: n, calcMethod: symbol)
-            }
+    mutating func math(passOp: String, inputOrStoredValue: Double) {
+        switch passOp {
+        case "÷":
+            totalValue = totalValue! / inputOrStoredValue
+        case "×":
+            totalValue = totalValue! * inputOrStoredValue
+        case "-":
+            totalValue = totalValue! - inputOrStoredValue
+        case "+":
+            totalValue = totalValue! + inputOrStoredValue
+        case "=":
+            return
+        default:
+            return
         }
-        return nil 
     }
     
-    private func performTwoNumCalculation(n2: Double) -> Double? {
+    mutating func calculate(operation: String) {
+        // when user clicks an operate button the first time
+        // 12 +
+        if totalValue == nil {
+            totalValue = inputValue
+            storedOp = operation
+            inputValue = 0
+            return
+        }
+        // following should only go through if the SAME op is pressed twice in a row.
+        if operatorLastTouched {
+            if storedOp == operation {
+                if storedOp == "=" {
+                    math(passOp: storedOpForReturn!, inputOrStoredValue: storedValue!)
+                } else {
+                math(passOp: operation, inputOrStoredValue: storedValue!)
+                }
+            } else {
+                return
+            }
+        } else {
+            operatorLastTouched = true
+            // stores the current input value and operation in case the user
+            // wants to repeat the Operation.
+            math(passOp: storedOp!, inputOrStoredValue: inputValue)
+            if operation == "=" {
+                storedOpForReturn = storedOp
+                storedOp = operation
+            } else {
+                storedOp = operation
+            }
+            storedValue = inputValue
+        }
         
-        if let n1 = intermediateCalculation?.n1,
-            let operation = intermediateCalculation?.calcMethod {
-            
-            switch operation {
-            case "+":
-                return n1 + n2
-            case "-":
-                return n1 - n2
-            case "×":
-                return n1 * n2
-            case "÷":
-                return n1 / n2
-            default:
-                fatalError("The operation passed in does not match any of the cases.")
-            }
-        }
-        return nil
     }
     
+    mutating func otherOps(operation: String) {
+        // having this in the same function as the math makes a conflict
+        // with "operatorLastTouched" so you can't use this
+        // after you hit an operator.
+        // (like if you hit divide when you meant to hit percent)
+        // keeping it separated solves this issue
+        switch operation {
+        case "+/-":
+            totalValue = totalValue! * -1
+        case "%" :
+            if percentHasBeenUsed {
+                return
+            }
+            totalValue = inputValue * 0.01
+            percentHasBeenUsed = true
+        default:
+            return
+        }
+    }
 }
