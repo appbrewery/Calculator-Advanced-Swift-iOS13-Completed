@@ -4,6 +4,7 @@
 //
 //  Created by Angela Yu on 10/09/2019.
 //  Copyright © 2019 London App Brewery. All rights reserved.
+//  Updated by OsamaSaberB
 //
 
 import UIKit
@@ -22,7 +23,15 @@ class ViewController: UIViewController {
             return number
         }
         set {
-            displayLabel.text = String(newValue)
+            
+            // To prevent AC button from showing displayLabel.text as "0.0" and display int "0" instead
+            if String(newValue) != "0.0" {
+                
+                displayLabel.text = String(format: newValue.removeZerosFromEnd())
+                
+            } else {
+                displayLabel.text = "0"
+            }
         }
     }
     
@@ -52,18 +61,31 @@ class ViewController: UIViewController {
         if let numValue = sender.currentTitle {
             
             if isFinishedTypingNumber {
+                
+                //To prevent display label from showing only "." as first character and display "0." instead
+                if numValue == "." && displayLabel.text?.first != "." {
+                    displayLabel.text = "0."
+                    isFinishedTypingNumber = false
+                    return
+                }
                 displayLabel.text = numValue
                 isFinishedTypingNumber = false
+                
             } else {
                 
                 if numValue == "." {
                     
-                    let isInt = floor(displayValue) == displayValue
-                    
-                    if !isInt {
+                    // to prevent the addision of another (.)
+                    if displayLabel.text!.contains(".") {
                         return
+                    } else {
+                        let isInt = floor(displayValue) == displayValue // Bool expresion
+                        if !isInt {
+                            return
+                        }
                     }
-                }
+                    
+                } // end if numValue
                 displayLabel.text = displayLabel.text! + numValue
             }
         }
@@ -71,3 +93,13 @@ class ViewController: UIViewController {
 
 }
 
+// extension to remove trailing zeros from an integer result
+extension Double {
+    func removeZerosFromEnd() -> String {
+        let formatter = NumberFormatter()
+        let number = NSNumber(value: self)
+        formatter.minimumFractionDigits = 0
+        formatter.maximumFractionDigits = 16 //maximum digits in Double after dot (maximum precision)
+        return String(formatter.string(from: number) ?? "")
+    }
+}
