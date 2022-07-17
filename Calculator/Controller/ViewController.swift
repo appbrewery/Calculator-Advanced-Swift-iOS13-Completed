@@ -58,9 +58,8 @@ class ViewController: UIViewController {
                 
                 if numValue == "." {
                     
-                    let isInt = floor(displayValue) == displayValue
-                    
-                    if !isInt {
+                    let hasDecimalPointCurrently = displayLabel.text!.contains(where: {$0 == "." })
+                    if hasDecimalPointCurrently {
                         return
                     }
                 }
